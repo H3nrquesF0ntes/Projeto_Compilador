@@ -94,13 +94,8 @@ class SimpleLangVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by SimpleLangParser#UnaryNeg.
-    def visitUnaryNeg(self, ctx:SimpleLangParser.UnaryNegContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by SimpleLangParser#ValueAtomExpr.
-    def visitValueAtomExpr(self, ctx:SimpleLangParser.ValueAtomExprContext):
+    # Visit a parse tree produced by SimpleLangParser#unaryExpr.
+    def visitUnaryExpr(self, ctx:SimpleLangParser.UnaryExprContext):
         return self.visitChildren(ctx)
 
 

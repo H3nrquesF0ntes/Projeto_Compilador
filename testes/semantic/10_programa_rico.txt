@@ -11,4 +11,4 @@ end while
 read contador;
 write(contador);
 
-end program
+end program.

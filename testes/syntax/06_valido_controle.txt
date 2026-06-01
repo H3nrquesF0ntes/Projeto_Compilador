@@ -5,4 +5,4 @@ integer y := 5;
 integer z := x + y;
 write("resultado");
 
-end program
+end program.

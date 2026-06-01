@@ -40,18 +40,21 @@ class CodeGenerator(SimpleLangVisitor):
 
   def visitIntDecl(self, ctx: SimpleLangParser.IntDeclContext):
     name = ctx.ID().getText()[:16]
-    value = self.visit(ctx.expr())
-    self._emit("store", value, None, name)
+    if ctx.expr() is not None:
+      value = self.visit(ctx.expr())
+      self._emit("store", value, None, name)
 
   def visitBoolDecl(self, ctx: SimpleLangParser.BoolDeclContext):
     name = ctx.ID().getText()[:16]
-    value = self.visit(ctx.expr())
-    self._emit("store", value, None, name)
+    if ctx.expr() is not None:
+      value = self.visit(ctx.expr())
+      self._emit("store", value, None, name)
 
   def visitVarDecl(self, ctx: SimpleLangParser.VarDeclContext):
     name = ctx.ID().getText()[:16]
-    value = self.visit(ctx.expr())
-    self._emit("store", value, None, name)
+    if ctx.expr() is not None:
+      value = self.visit(ctx.expr())
+      self._emit("store", value, None, name)
 
   def visitAssignStmt(self, ctx: SimpleLangParser.AssignStmtContext):
     name = ctx.ID().getText()[:16]
@@ -145,8 +148,10 @@ class CodeGenerator(SimpleLangVisitor):
       acc = temp
     return acc
 
-  def visitUnaryNeg(self, ctx: SimpleLangParser.UnaryNegContext):
-    inner = self.visit(ctx.unaryExpr())
+  def visitUnaryExpr(self, ctx: SimpleLangParser.UnaryExprContext):
+    inner = self.visit(ctx.valueAtom())
+    if ctx.OPNEG() is None:
+      return inner
     temp = self._new_temp()
     self._emit("neg", inner, None, temp)
     return temp
@@ -168,6 +173,3 @@ class CodeGenerator(SimpleLangVisitor):
 
   def visitParenAtom(self, ctx: SimpleLangParser.ParenAtomContext):
     return self.visit(ctx.expr())
-
-  def visitValueAtomExpr(self, ctx: SimpleLangParser.ValueAtomExprContext):
-    return self.visit(ctx.valueAtom())

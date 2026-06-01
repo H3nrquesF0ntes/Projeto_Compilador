@@ -1,11 +1,15 @@
 grammar SimpleLang;
 
 // =============================================================================
-// Sintaxe corrigida (sem ambiguidade; OPENG restrito a valueAtom)
+// Sintaxe corrigida:
+// - OPENG restrito a valueAtom; precedência em camadas (sem ambiguidade)
+// - Programa: begin program: ... end program.  (PONTO obrigatório ao final)
+// - Declarações: atribuição inicial opcional (integer x;)
+// - Negação: no máximo um OPNEG por operando (OPNEG? valueAtom)
 // =============================================================================
 
 program
-    : BEGIN PROGRAM DPONTOS block END PROGRAM EOF
+    : BEGIN PROGRAM DPONTOS block END PROGRAM PONTO EOF
     ;
 
 block
@@ -18,9 +22,9 @@ blockItem
     ;
 
 decl
-    : INTEGER ID ATRIB expr PVIG       # IntDecl
-    | BOOLEAN ID ATRIB expr PVIG       # BoolDecl
-    | VAR ID ATRIB expr PVIG           # VarDecl
+    : INTEGER ID ( ATRIB expr )? PVIG  # IntDecl
+    | BOOLEAN ID ( ATRIB expr )? PVIG  # BoolDecl
+    | VAR ID ( ATRIB expr )? PVIG      # VarDecl
     ;
 
 stmt
@@ -59,8 +63,7 @@ mulExpr
     ;
 
 unaryExpr
-    : OPNEG unaryExpr                  # UnaryNeg
-    | valueAtom                        # ValueAtomExpr
+    : OPNEG? valueAtom
     ;
 
 valueAtom

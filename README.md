@@ -3,8 +3,8 @@
 Compilador educacional para a linguagem do **Projeto I** (LF&C), com as quatro fases:
 
 1. **Análise léxica** — tokens no formato do enunciado (`<TIPO>` ou `<TIPO, atributo>`)
-2. **Análise sintática** — gramática `grammar/SimpleLang.g4` (sem conflitos; `valueAtom` = OPENG)
-3. **Análise semântica** — tabela de símbolos, tipos e validações (ID 16 chars, CTE 2 bytes)
+2. **Análise sintática** — gramática `grammar/SimpleLang.g4` (sem conflitos; `valueAtom` = OPENG); árvore exportada em PNG
+3. **Análise semântica** — tabela de símbolos, tipos e validações (ID 16 chars, CTE 0..65535 — 2 bytes sem sinal)
 4. **Geração de código** — quádruplos + interpretador para demonstração
 
 ## Estrutura
@@ -56,8 +56,12 @@ py -3.13 -m pip install -r requirements.txt
 ## Executar
 
 ```powershell
-# Pipeline completo (tokens + semântica + quádruplos)
+# Pipeline completo (tokens + PNG da árvore + semântica + quádruplos)
 py -3.13 src/main.py examples/exemplo.txt
+# Gera examples/exemplo.arvore.png (abra a imagem no explorador de arquivos)
+
+# PNG em caminho customizado
+py -3.13 src/main.py examples/exemplo.txt --arvore-png saida/minha_arvore.png
 
 # Somente léxico
 py -3.13 src/main.py examples/exemplo.txt --fase lex
@@ -66,21 +70,25 @@ py -3.13 src/main.py examples/exemplo.txt --fase lex
 py -3.13 src/main.py examples/exemplo.txt --executar
 ```
 
+A árvore sintática **não** é mais impressa no terminal: é salva como imagem PNG (matplotlib). O terminal só informa o caminho do arquivo gerado.
+
 ## Pasta `testes/`
 
-Conjunto de **28 programas-fonte** (`.txt`) para validar cada fase do compilador de forma isolada — útil para o relatório, demonstrações em vídeo e depuração. Os arquivos estão numerados (`01_`, `02_`, …) e agrupados por pasta conforme a fase que se pretende exercitar.
+Conjunto de **30 programas-fonte** (`.txt`) para validar cada fase do compilador de forma isolada — útil para o relatório, demonstrações em vídeo e depuração. Os arquivos estão numerados (`01_`, `02_`, …) e agrupados por pasta conforme a fase que se pretende exercitar.
 
 | Pasta | Quantidade | Finalidade |
 |-------|------------|------------|
 | `testes/lex/` | 7 | Tokenização: palavras reservadas, operadores, comentários, ID truncado (16 chars), CTE fora de 2 bytes, caractere inválido |
-| `testes/syntax/` | 6 | Gramática: erros propositais (`;` faltando, `end program` ausente, etc.) e `06_valido_controle.txt` (deve compilar) |
-| `testes/semantic/` | 10 | Tipos e tabela de símbolos: redeclaração, variável não declarada, `while` com condição inválida, limites de CTE, programa completo |
+| `testes/syntax/` | 7 | Gramática: erros propositais (`;` faltando, `end program` ausente, `.` final ausente, etc.) e `06_valido_controle.txt` (deve compilar) |
+| `testes/semantic/` | 11 | Tipos e tabela de símbolos: redeclaração, variável não declarada, decl sem init, `while` com condição inválida, limites de CTE, programa completo |
 | `testes/codegen/` | 5 | Quádruplos e execução: aritmética, expressões aninhadas, lógica, laço `while`, `read`/`write` |
 
 **Observações de sintaxe** (conforme `grammar/SimpleLang.g4`):
 
+- O programa deve terminar com **`.`** após `end program` (ex.: `end program.`).
 - Após `end while` **não** use `;`.
 - `read` usa identificador direto: `read n;` (sem parênteses).
+- Declarações podem omitir `:= expressão` (ex.: `integer x;`).
 
 ### Como utilizar
 
@@ -108,7 +116,7 @@ py -3.13 src/main.py testes/codegen/05_read_interativo.txt --executar
 | Comando | Fase exercitada |
 |---------|-----------------|
 | `--fase lex` | Apenas léxica |
-| Sem flags (padrão `full`) | Léxica → sintática → semântica → geração de quádruplos |
+| Sem flags (padrão `full`) | Léxica → árvore sintática → semântica → geração de quádruplos |
 | `--executar` | Igual ao `full`, mais interpretador dos quádruplos |
 
 Se a saída contiver `Erro léxico`, `Erro sintático` ou mensagem de identificador/tipo, a falha ocorreu na fase indicada — compare com a tabela da pasta (`lex` vs `syntax` vs `semantic`). Programas em `codegen/` devem concluir com a seção **Código intermediário (quádruplos)**.

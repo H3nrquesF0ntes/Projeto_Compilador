@@ -3,4 +3,4 @@ begin program:
 integer x := 10;
 write("oi");
 
-end program
+end program.

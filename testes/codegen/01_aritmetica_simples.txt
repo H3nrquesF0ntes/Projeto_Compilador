@@ -6,4 +6,4 @@ integer z := x + y;
 write("resultado");
 write(z);
 
-end program
+end program.

@@ -1,0 +1,5 @@
+begin program:
+integer x;
+x := 10;
+write x;
+end program.

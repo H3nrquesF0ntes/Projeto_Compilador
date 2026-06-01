@@ -1,4 +1,4 @@
 begin program:
 integer x := 10;
 x := "texto";
-end program
+end program.

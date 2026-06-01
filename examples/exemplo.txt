@@ -1,9 +1,5 @@
 begin program:
 
-integer x := 10;
-integer y := 5;
-integer z := x + y;
-write("resultado");
-write(z);
+integer x := 65535;
 
-end program
+end program.

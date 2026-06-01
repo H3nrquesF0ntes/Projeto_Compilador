@@ -38,6 +38,14 @@ def main() -> int:
     action="store_true",
     help="Interpreta o programa após gerar quádruplos",
   )
+  parser.add_argument(
+    "--arvore-png",
+    nargs="?",
+    const="",
+    default=None,
+    metavar="CAMINHO",
+    help="Grava a árvore sintática em PNG (padrão: <arquivo>.arvore.png ao lado do fonte)",
+  )
   args = parser.parse_args()
 
   path = Path(args.arquivo) if args.arquivo else None
@@ -53,10 +61,19 @@ def main() -> int:
     print_tokens(result["tokens"])
     return 0
 
+  tree_png: Path | None = None
+  if args.arvore_png is not None:
+    tree_png = Path(args.arvore_png) if args.arvore_png else None
+
   if path:
-    result = compile_file(path, phase="full", run_program=False)
+    result = compile_file(path, phase="full", run_program=False, parse_tree_image=tree_png)
   else:
-    result = compile_source(source, phase="full", run_program=False)
+    result = compile_source(
+      source,
+      phase="full",
+      run_program=False,
+      parse_tree_image=tree_png,
+    )
 
   if "error" in result:
     print(result["error"], file=sys.stderr)
@@ -64,6 +81,10 @@ def main() -> int:
 
   print("=== Análise léxica (tokens) ===")
   print_tokens(result["tokens"])
+
+  if "parse_tree_image" in result:
+    print(f"\n=== Análise sintática (árvore) ===")
+    print(f"Imagem gravada em: {result['parse_tree_image']}")
 
   print("\n=== Análise semântica (símbolos) ===")
   for symbol in result["symbols"]:

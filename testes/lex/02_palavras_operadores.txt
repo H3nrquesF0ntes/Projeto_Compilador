@@ -2,4 +2,4 @@ begin program:
 boolean b := true;
 var msg := "teste";
 x := (1 + 2) * 3;
-end program
+end program.

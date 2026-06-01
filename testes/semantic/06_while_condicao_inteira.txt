@@ -3,4 +3,4 @@ integer n := 1;
 while (n) do:
 n := 0;
 end while
-end program
+end program.

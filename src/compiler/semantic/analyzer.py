@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from compiler.cte_bounds import validate_cte_value
 from compiler.errors import SemanticError
 from compiler.semantic.symbol_table import SymbolTable
 from compiler.semantic.types import DataType
@@ -14,10 +15,7 @@ def _truncate_id(name: str) -> str:
 
 
 def _cte_value(text: str) -> int:
-  value = int(text)
-  if value < -32768 or value > 32767:
-    raise ValueError("constante inteira fora do intervalo de 2 bytes")
-  return value
+  return validate_cte_value(int(text))
 
 
 class SemanticAnalyzer(SimpleLangVisitor):
@@ -39,32 +37,35 @@ class SemanticAnalyzer(SimpleLangVisitor):
   def visitIntDecl(self, ctx: SimpleLangParser.IntDeclContext):
     name = _truncate_id(ctx.ID().getText())
     try:
-      value_type = self._expr_type(ctx.expr())
-      if value_type != DataType.INTEGER:
-        self._fail(f"declaração de '{name}' exige expressão inteira", ctx)
-        return
+      if ctx.expr() is not None:
+        value_type = self._expr_type(ctx.expr())
+        if value_type != DataType.INTEGER:
+          self._fail(f"declaração de '{name}' exige expressão inteira", ctx)
+          return
       self.table.declare(name, DataType.INTEGER)
     except ValueError as err:
       self._fail(str(err), ctx)
 
   def visitBoolDecl(self, ctx: SimpleLangParser.BoolDeclContext):
     name = _truncate_id(ctx.ID().getText())
-    value_type = self._expr_type(ctx.expr())
-    if value_type != DataType.BOOLEAN:
-      self._fail(f"declaração de '{name}' exige expressão booleana", ctx)
-      return
     try:
+      if ctx.expr() is not None:
+        value_type = self._expr_type(ctx.expr())
+        if value_type != DataType.BOOLEAN:
+          self._fail(f"declaração de '{name}' exige expressão booleana", ctx)
+          return
       self.table.declare(name, DataType.BOOLEAN)
     except ValueError as err:
       self._fail(str(err), ctx)
 
   def visitVarDecl(self, ctx: SimpleLangParser.VarDeclContext):
     name = _truncate_id(ctx.ID().getText())
-    value_type = self._expr_type(ctx.expr())
-    if value_type != DataType.STRING:
-      self._fail(f"declaração VAR de '{name}' exige cadeia de caracteres", ctx)
-      return
     try:
+      if ctx.expr() is not None:
+        value_type = self._expr_type(ctx.expr())
+        if value_type != DataType.STRING:
+          self._fail(f"declaração VAR de '{name}' exige cadeia de caracteres", ctx)
+          return
       self.table.declare(name, DataType.STRING)
     except ValueError as err:
       self._fail(str(err), ctx)
@@ -149,8 +150,10 @@ class SemanticAnalyzer(SimpleLangVisitor):
       raise ValueError("termo aritmético exige operandos inteiros")
     return DataType.INTEGER
 
-  def visitUnaryNeg(self, ctx: SimpleLangParser.UnaryNegContext):
-    inner = self.visit(ctx.unaryExpr())
+  def visitUnaryExpr(self, ctx: SimpleLangParser.UnaryExprContext):
+    inner = self.visit(ctx.valueAtom())
+    if ctx.OPNEG() is None:
+      return inner
     if inner == DataType.INTEGER:
       return DataType.INTEGER
     if inner == DataType.BOOLEAN:
@@ -176,6 +179,3 @@ class SemanticAnalyzer(SimpleLangVisitor):
 
   def visitParenAtom(self, ctx: SimpleLangParser.ParenAtomContext):
     return self._expr_type(ctx.expr())
-
-  def visitValueAtomExpr(self, ctx: SimpleLangParser.ValueAtomExprContext):
-    return self.visit(ctx.valueAtom())

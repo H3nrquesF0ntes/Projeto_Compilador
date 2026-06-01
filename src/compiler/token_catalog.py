@@ -9,7 +9,7 @@ from typing import Any
 
 from antlr4.Token import Token
 
-# Nomes dos tokens do lexer gerado (SimpleLangLexer)
+from compiler.cte_bounds import validate_cte_value
 from generated.SimpleLangLexer import SimpleLangLexer
 
 
@@ -29,10 +29,7 @@ def _truncate_id(name: str) -> str:
 
 
 def _parse_cte(text: str) -> int:
-  value = int(text)
-  if value < -32768 or value > 32767:
-    raise ValueError("fora do intervalo de 2 bytes")
-  return value
+  return validate_cte_value(int(text))
 
 
 def describe_token(token: Token) -> TokenInfo:
