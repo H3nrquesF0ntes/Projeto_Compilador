@@ -1,0 +1,4 @@
+begin program:
+while (true) do:
+integer i := 0;
+end program

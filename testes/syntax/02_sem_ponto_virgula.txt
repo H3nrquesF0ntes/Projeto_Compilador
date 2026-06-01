@@ -1,0 +1,4 @@
+begin program:
+integer x := 10
+integer y := 5;
+end program

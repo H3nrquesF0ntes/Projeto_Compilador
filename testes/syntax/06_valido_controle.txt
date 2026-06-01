@@ -4,6 +4,5 @@ integer x := 10;
 integer y := 5;
 integer z := x + y;
 write("resultado");
-write(z);
 
 end program

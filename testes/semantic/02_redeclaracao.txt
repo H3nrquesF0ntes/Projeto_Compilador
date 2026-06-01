@@ -1,0 +1,4 @@
+begin program:
+integer x := 1;
+integer x := 2;
+end program

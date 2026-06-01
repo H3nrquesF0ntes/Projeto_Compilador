@@ -1,0 +1,4 @@
+begin program:
+integer min := -32768;
+integer max := 32767;
+end program

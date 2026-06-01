@@ -1,0 +1,5 @@
+begin program:
+integer r := (10 - 3) * 2;
+integer neg := ~r;
+write(r);
+end program

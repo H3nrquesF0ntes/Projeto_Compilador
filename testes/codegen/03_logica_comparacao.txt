@@ -1,0 +1,4 @@
+begin program:
+boolean ok := (5 < 10) and (3 <> 4);
+write(ok);
+end program

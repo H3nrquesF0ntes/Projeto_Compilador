@@ -1,0 +1,5 @@
+begin program:
+integer n := 0;
+read n;
+write(n);
+end program

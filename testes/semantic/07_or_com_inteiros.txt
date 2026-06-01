@@ -1,0 +1,5 @@
+begin program:
+integer a := 1;
+integer b := 2;
+integer c := a or b;
+end program

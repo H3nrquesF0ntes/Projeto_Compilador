@@ -1,0 +1,3 @@
+begin program:   // comentário
+integer a := 1;
+end program

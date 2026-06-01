@@ -25,6 +25,11 @@ Compiladores/
 │       └── codegen/
 ├── examples/
 │   └── exemplo.txt
+├── testes/                 # fontes de teste por fase (ver seção abaixo)
+│   ├── lex/
+│   ├── syntax/
+│   ├── semantic/
+│   └── codegen/
 ├── scripts/
 │   └── generate_parser.ps1
 └── requirements.txt
@@ -61,6 +66,55 @@ py -3.13 src/main.py examples/exemplo.txt --fase lex
 py -3.13 src/main.py examples/exemplo.txt --executar
 ```
 
+## Pasta `testes/`
+
+Conjunto de **28 programas-fonte** (`.txt`) para validar cada fase do compilador de forma isolada — útil para o relatório, demonstrações em vídeo e depuração. Os arquivos estão numerados (`01_`, `02_`, …) e agrupados por pasta conforme a fase que se pretende exercitar.
+
+| Pasta | Quantidade | Finalidade |
+|-------|------------|------------|
+| `testes/lex/` | 7 | Tokenização: palavras reservadas, operadores, comentários, ID truncado (16 chars), CTE fora de 2 bytes, caractere inválido |
+| `testes/syntax/` | 6 | Gramática: erros propositais (`;` faltando, `end program` ausente, etc.) e `06_valido_controle.txt` (deve compilar) |
+| `testes/semantic/` | 10 | Tipos e tabela de símbolos: redeclaração, variável não declarada, `while` com condição inválida, limites de CTE, programa completo |
+| `testes/codegen/` | 5 | Quádruplos e execução: aritmética, expressões aninhadas, lógica, laço `while`, `read`/`write` |
+
+**Observações de sintaxe** (conforme `grammar/SimpleLang.g4`):
+
+- Após `end while` **não** use `;`.
+- `read` usa identificador direto: `read n;` (sem parênteses).
+
+### Como utilizar
+
+Substitua o caminho do arquivo nos comandos abaixo. Muitos testes em `lex/`, `syntax/` e `semantic/` **devem falhar** — o objetivo é confirmar que a fase correta reporta o erro.
+
+```powershell
+# Análise léxica (somente lista de tokens)
+py -3.13 src/main.py testes/lex/01_valido_baseline.txt --fase lex
+
+# Pipeline completo: léxico + sintaxe + semântica + quádruplos
+py -3.13 src/main.py testes/syntax/06_valido_controle.txt
+py -3.13 src/main.py testes/semantic/09_cte_limite_2bytes.txt
+py -3.13 src/main.py testes/codegen/01_aritmetica_simples.txt
+
+# Erro esperado (exemplos)
+py -3.13 src/main.py testes/lex/07_caractere_invalido.txt --fase lex
+py -3.13 src/main.py testes/syntax/02_sem_ponto_virgula.txt
+py -3.13 src/main.py testes/semantic/02_redeclaracao.txt
+
+# Interpretador (após compilação bem-sucedida)
+py -3.13 src/main.py testes/codegen/04_laco_while.txt --executar
+py -3.13 src/main.py testes/codegen/05_read_interativo.txt --executar
+```
+
+| Comando | Fase exercitada |
+|---------|-----------------|
+| `--fase lex` | Apenas léxica |
+| Sem flags (padrão `full`) | Léxica → sintática → semântica → geração de quádruplos |
+| `--executar` | Igual ao `full`, mais interpretador dos quádruplos |
+
+Se a saída contiver `Erro léxico`, `Erro sintático` ou mensagem de identificador/tipo, a falha ocorreu na fase indicada — compare com a tabela da pasta (`lex` vs `syntax` vs `semantic`). Programas em `codegen/` devem concluir com a seção **Código intermediário (quádruplos)**.
+
+A pasta `examples/` mantém um único exemplo mínimo; `testes/` cobre cenários positivos e negativos para documentação e gravação do vídeo.
+
 ## Relatório e vídeo
 
-Documente no relatório: gramática original vs corrigida, conflitos resolvidos, classes em `src/compiler/` e decisões de implementação. O vídeo pode gravar a execução dos comandos acima.
+Documente no relatório: gramática original vs corrigida, conflitos resolvidos, classes em `src/compiler/` e decisões de implementação. O vídeo pode gravar a execução dos comandos da seção **Executar** e dos exemplos em `testes/`.

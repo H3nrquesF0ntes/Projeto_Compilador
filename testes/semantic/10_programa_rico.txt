@@ -1,0 +1,14 @@
+begin program:
+
+boolean ativo := true;
+integer contador := 0;
+var titulo := "demo";
+
+while (contador < 3) do:
+  contador := contador + 1;
+  write(titulo);
+end while
+read contador;
+write(contador);
+
+end program
